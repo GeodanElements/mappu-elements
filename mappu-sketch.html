@@ -1,0 +1,186 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<dom-module id="gm-mappu-sketch">
+ <style>
+ 	.container {
+		-webkit-box-shadow:  0px 2px 5px 0px rgba(161,161,161,0.62);
+		-moz-box-shadow:  0px 2px 5px 0px rgba(161,161,161,0.62);
+		box-shadow:  0px 2px 5px 0px rgba(161,161,161,0.62);
+		background: white;
+	}
+	.iron-selected {
+      background: orange;
+    }
+	iron-collapse {
+		background: rgba(225,225,230,0.4);
+		-webkit-box-shadow: inset 0px 2px 5px 0px rgba(161,161,161,0.62);
+		-moz-box-shadow: inset 0px 2px 5px 0px rgba(161,161,161,0.62);
+		box-shadow: inset 0px 2px 5px 0px rgba(161,161,161,0.62);
+		margin-left: 1px;
+		margin-right: 1px;
+	}
+	paper-icon-item {
+		cursor: pointer;
+		min-height: 20px;
+	}
+	svg {
+		cursor: pointer;
+	}
+ 	.collapse-content {
+ 		/*max-width: 400px;*/
+ 	}
+ 	.layer {
+		border-top: solid 1px rgb(200,200,200);
+		border-bottom: solid 1px white;
+		background: white;
+	}
+	.marker {
+		width: 40px;
+		height: 40px;
+	}
+ </style>
+ <template>
+ 	<div class='container'>
+ 		<paper-icon-item class='layer' on-click='toggle' >
+ 			<iron-icon icon="arrow-drop-down" item-icon></iron-icon>
+			<paper-item-body>Points</paper-item-body>
+		</paper-icon-item>
+ 		<iron-collapse class='collapse-content'>
+ 			<iron-selector id="icons">
+ 				<template is="dom-repeat" items="{{iconset}}">
+ 					<paper-icon-button class="marker" alt="{{item.text}}" value="{{item.url}}" src="{{item.url}}" on-click="startPoint"></paper-icon-button>
+ 				</template>
+ 			</iron-selector>
+ 		</iron-collapse>
+ 		<paper-icon-item class='layer' on-click='toggle' >
+ 			<iron-icon icon="arrow-drop-down" item-icon></iron-icon>
+			<paper-item-body>Lines</paper-item-body>
+		</paper-icon-item>
+ 		<iron-collapse class='collapse-content'>
+ 			<iron-selector id="lines">
+ 				<template is="dom-repeat" items="{{lineset}}">
+ 					<svg width="29" height="29" on-click="startLine">
+ 					<g transform="translate(-27.086869,-417.52882)">
+ 						<path fill$="{{item.fill}}" stroke$="{{item.stroke}}" d="M 2.7731138,5.3788833 14.252526,11.064017 26.527918,3.1859009 20.874459,-6.2398619 7.3960719,-3.9366059 z" transform="translate(27.086869,429.63625)" />
+ 					</g></svg>
+ 				</template>
+ 			</iron-selector>
+ 		</iron-collapse>
+ 		<paper-icon-item class='layer' on-click='toggle' >
+ 			<iron-icon icon="arrow-drop-down" item-icon></iron-icon>
+			<paper-item-body>Polygons</paper-item-body>
+		</paper-icon-item>
+ 		<iron-collapse class='collapse-content'>
+ 			<iron-selector id="polygons">
+ 				<template is="dom-repeat" items="{{polygonset}}">
+ 					<svg width="29" height="29" on-click="startPolygon">
+ 					<g transform="translate(-27.086869,-417.52882)">
+ 						<path fill$="{{item.fill}}" stroke$="{{item.stroke}}" fill-opacity="0.5" d="M 2.7731138,5.3788833 14.252526,11.064017 26.527918,3.1859009 20.874459,-6.2398619 7.3960719,-3.9366059 z" transform="translate(27.086869,429.63625)" />
+ 					</g></svg>
+ 				</template>
+ 			</iron-selector>
+ 		</iron-collapse>
+ 	</div>
+ </template>
+
+
+
+
+</dom-module>
+
+<script>
+
+Polymer({
+	is: 'gm-mappu-sketch',
+	properties: {
+		styleset: {
+			observer: '_stylesetChanged'
+		},
+		layer: {
+			type: Object,
+			observer: '_layerChanged'
+		}
+	},
+	ready: function(){
+
+	},
+	_stylesetChanged: function(){
+		this.iconset = this.styleset.iconset;
+		this.lineset = this.styleset.lineset;
+		this.polygonset = this.styleset.polygonset;
+	},
+	_stylesetChanged: function(){
+		this.iconset = this.styleset.iconset;
+		this.lineset = this.styleset.lineset;
+		this.polygonset = this.styleset.polygonset;
+	},
+	_layerChanged: function(){
+		this.map = this.layer.map;
+		this.sketch = this.layer.map.sketch;
+	},
+	_getPolystyle: function(item){
+		return 'fill:'+item.fill+';fill-opacity:0.7;stroke:'+item.stroke+';stroke-width:1;';
+	},
+	toggle: function(e){
+		e.currentTarget.nextElementSibling.toggle();
+	},
+	startPoint: function(e){
+		var style = {'marker-url':e.model.item.url};
+		var self = this;
+		var featureReady = function(feature){
+			self.map.mapdiv.style.cursor = 'auto';
+			feature.style = style;
+			for (var attrname in feature.style) { feature.properties[attrname] = feature.style[attrname]; }
+		 	self.store.records({_id:feature.id.toString()}).data('type','feature').data('feature',feature).sync();
+		};
+		this.sketch.finish();
+		this.sketch.draw('Point')
+			.then(function(d){
+				featureReady(d);
+			});
+		this.map.mapdiv.style.cursor = 'url('+style['marker-url']+') 18 20,auto';
+	},
+	startLine: function(e){
+		var style = e.model.item;
+		var self = this;
+		var featureReady = function(feature){
+			self.map.mapdiv.style.cursor = 'auto';
+			feature.style = style;
+			for (var attrname in feature.style) {
+				feature.properties[attrname] = feature.style[attrname];
+			}
+		 	self.store.records({_id:feature.id.toString()}).data('type','feature').data('feature',feature).sync();
+		};
+		this.sketch.finish();
+		this.sketch.draw('LineString')
+			.then(function(d){
+				featureReady(d);
+			});
+		this.map.mapdiv.style.cursor = 'crosshair';
+	},
+	startPolygon: function(e){
+		var style = e.model.item;
+		var self = this;
+		var featureReady = function(feature){
+			self.map.mapdiv.style.cursor = 'auto';
+			feature.style = style;
+			for (var attrname in feature.style) { feature.properties[attrname] = feature.style[attrname]; }
+		 	self.store.records({_id:feature.id.toString()}).data('type','feature').data('feature',feature).sync();
+		};
+		this.sketch.finish();
+		this.sketch.draw('Polygon')
+			.then(function(d){
+				featureReady(d);
+			});
+		this.map.mapdiv.style.cursor = 'crosshair';
+	},
+	finish: function(){
+		this.sketch.finish();
+	},
+});
+</script>
