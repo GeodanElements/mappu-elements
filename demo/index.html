@@ -1,0 +1,34 @@
+<!doctype html>
+<!--
+
+-->
+<html>
+<head>
+
+  <title>cow-elements demo</title>
+
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+  <link rel="import" href="../mappu-map.html">
+  <link rel="import" href="../mappu-zoombuttons.html">
+<style>
+mappu-map {
+    position: absolute;
+    left:0px;
+    right: 0px;
+    top:0px;
+    bottom: 0px;
+}
+</style>
+</head>
+<body class="fullbleed layout vertical">
+    <template is="dom-bind" id="app">
+        <mappu-map map="{{map}}"></mapu-map>
+        <mappu-zoombuttons map="{{map}}"></mappu-zoombuttons>
+    </template>
+    <script>
+        var app = document.querySelector('#app');
+        app.map.resize();
+    </script>
+</body>
+</html>
