@@ -1,11 +1,12 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
-<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="../bower_components/iron-icons/editor-icons.html">
-<link rel="import" href="../bower_components/iron-icons/social-icons.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
-<dom-module id="gm-mappu-drawbuttons">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
+<link rel="import" href="../iron-selector/iron-selector.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
+<link rel="import" href="../iron-icons/social-icons.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-fab/paper-fab.html">
+<dom-module id="mappu-drawbuttons">
  <style>
  	#drawbuttons {
 		position: absolute;
@@ -15,7 +16,7 @@
 	}
 	paper-fab {
 		background: gray;
-		margin: 5px; 
+		margin: 5px;
 	}
 	.iron-selected {
       background: orange;
@@ -33,12 +34,12 @@
  		background: white;
  		padding: 10px;
  	}
- 	
+    /*
  	.layer {
 		border-top: solid 1px rgb(200,200,200);
 		border-bottom: solid 1px white;
 		background: white;
-	}
+	}*/
 	.marker {
 		width: 40px;
 		height: 40px;
@@ -49,7 +50,7 @@
  		<iron-collapse align='right' class='collapse-content' id='collapse1'>
  			<iron-selector id="icons">
  				<template is="dom-repeat" items="{{iconset}}">
- 					<paper-icon-button class="marker" alt="{{item.text}}" value="{{item.url}}" src="{{item.url}}" on-click="startPoint"></paper-icon-button>
+                    <paper-icon-button class="marker" alt="{{item.text}}" value="{{item.url}}" src="data:image/png;base64,[[item.base64]]" on-click="startPoint"></paper-icon-button>
  				</template>
  			</iron-selector>
  		</iron-collapse>
@@ -63,7 +64,7 @@
  				</template>
  			</iron-selector>
  		</iron-collapse>
- 		
+
  		<iron-collapse align='right' class='collapse-content' id='collapse3'>
  			<iron-selector id="polygons">
  				<template is="dom-repeat" items="{{polygonset}}">
@@ -74,9 +75,9 @@
  				</template>
  			</iron-selector>
  		</iron-collapse>
- 		
+
  		<iron-selector id="drawbuttons" class="list" selected="-1">
-			 <paper-fab mini id="pointfab" style$="color:{{selectedPointColor}}" icon="room" on-click="togglePoints"></paper-fab>
+			 <paper-fab mini id="pointfab" style$="color:{{selectedPointColor}}" icon="icons:room" on-click="togglePoints"></paper-fab>
 			 <paper-fab mini id="linefab" style$="color:{{selectedLineColor}}" icon="gesture" on-click="toggleLines"></paper-fab>
 			 <paper-fab mini id="polygonfab" style$="color:{{selectedPolyColor}}" icon="bookmark" on-click="togglePolygons"></paper-fab>
 			 <br><!--
@@ -85,27 +86,27 @@
 			 -->
 			 <paper-fab mini id="cancelfab" icon="remove-circle-outline" on-click="finish"></paper-fab>
 		 </iron-selector>
- 		
+
  	</div>
  </template>
- 
+
 </dom-module>
 
 <script>
 
 Polymer({
-	is: 'gm-mappu-drawbuttons',
+	is: 'mappu-drawbuttons',
 	properties: {
 		styleset: {
 			observer: '_stylesetChanged'
 		},
-		layer: {
+		map: {
 			type: Object,
-			observer: '_layerChanged'
+			observer: '_mapChanged'
 		}
 	},
 	ready: function(){
-		
+
 	},
 	_stylesetChanged: function(){
 		this.iconset = this.styleset.iconset;
@@ -117,9 +118,8 @@ Polymer({
 		this.lineset = this.styleset.lineset;
 		this.polygonset = this.styleset.polygonset;
 	},
-	_layerChanged: function(){
-		this.map = this.layer.map;
-		this.sketch = this.layer.map.sketch;
+	_mapChanged: function(){
+		this.sketch = this.map.sketch;
 	},
 	_getPolystyle: function(item){
 		return 'fill:'+item.fill+';fill-opacity:0.7;stroke:'+item.stroke+';stroke-width:1;';
@@ -142,11 +142,14 @@ Polymer({
 			self.map.mapdiv.style.cursor = 'auto';
 			feature.style = {
 				fill: 'none',
+                iconimg_encoding: 'png;base64',
+                iconimg_bytearray: e.model.item.base64,
+                iconimg: true,
 				'marker-url': e.model.item.url,
 				stroke: 'none'
 			};
 			for (var attrname in feature.style) { feature.properties[attrname] = feature.style[attrname]; }
-		 	self.store.records({_id:feature.id.toString()}).data('type','feature').data('feature',feature).sync();
+            self.fire('featureReady',feature);
 		};
 		this.sketch.finish();
 		this.sketch.draw('Point')
@@ -166,10 +169,10 @@ Polymer({
 				"stroke-width": e.model.item['stroke-width']
 			};
 			feature.style = e.model.item;
-			for (var attrname in feature.style) { 
-				feature.properties[attrname] = feature.style[attrname]; 
+			for (var attrname in feature.style) {
+				feature.properties[attrname] = feature.style[attrname];
 			}
-		 	self.store.records({_id:feature.id.toString()}).data('type','feature').data('feature',feature).sync();
+            self.fire('featureReady',feature);
 		};
 		this.sketch.finish();
 		this.sketch.draw('LineString')
@@ -189,7 +192,7 @@ Polymer({
 			};
 			feature.style = e.model.item;
 			for (var attrname in feature.style) { feature.properties[attrname] = feature.style[attrname]; }
-		 	self.store.records({_id:feature.id.toString()}).data('type','feature').data('feature',feature).sync();
+			self.fire('featureReady',feature);
 		};
 		this.sketch.finish();
 		this.sketch.draw('Polygon')
@@ -203,7 +206,7 @@ Polymer({
 		var featureReady = function(e){
 			self.map.mapdiv.removeEventListener('featureChanged', featureReady);
 			//var feature = e.detail;
-			//self.fire('changedfeature', {feature: feature}); 
+			//self.fire('changedfeature', {feature: feature});
 			self.$.drawbuttons.selected = -1;
 		};
 		this.sketch.startEdit();
@@ -213,12 +216,12 @@ Polymer({
 		var callback = function(e){
 			self.map.mapdiv.removeEventListener('featureRemoved', callback);
 			//var feature = e.detail;
-			//self.fire('removedfeature', {feature: feature}); 
+			//self.fire('removedfeature', {feature: feature});
 			self.$.drawbuttons.selected = -1;
 		};
 		this.sketch.startRemove();
 	},
-        
+
 	finish: function(){
 		this.$.collapse1.hide();
 		this.$.collapse2.hide();

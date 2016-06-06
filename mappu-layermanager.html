@@ -1,8 +1,8 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/Sortable/Sortable.html">
-<link rel="import" href="gm-mappu-layercard.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../Sortable/Sortable.html">
+<link rel="import" href="mappu-layercard.html">
 <!--<link rel="import" href="./gm-drag-drop.html">-->
-<dom-module id="gm-mappu-layermanager">
+<dom-module id="mappu-layermanager">
 
 <style>
 
@@ -37,7 +37,7 @@ Array.prototype.move = function (old_index, new_index) {
   return this; // for testing purposes
 };
   Polymer({
-  is: 'gm-mappu-layermanager',
+  is: 'mappu-layermanager',
   properties: {
 		map: {
 			type: Object,
