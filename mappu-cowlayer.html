@@ -20,9 +20,7 @@
     is: "mappu-cowlayer",
 	properties: {
 		features: {
-			type: Array,
-			//value: function(){return [];},
-			observer: '_reload'
+			type: Array
 		},
 		map: {
 			type: Object,
@@ -34,10 +32,12 @@
 		},
 		icons: {
 			type: Array,
-			value: function(){return [];},
-			observer: '_reload'
+			value: function(){return [];}
 		}
 	},
+	observers: [
+		'_reload(layer,icons, features)'
+	],
 
     _mapChanged: function() {
 		var self = this;

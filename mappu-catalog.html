@@ -1,7 +1,7 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="./gm-ogcparser.html">
 
 <dom-module id="gm-mappu-catalog">
@@ -28,7 +28,7 @@
         </iron-collapse>
     </template>
  </template>
- 
+
 </dom-module>
 
 <script>
@@ -50,14 +50,14 @@ Polymer({
     	title: String
     },
     ready: function(){
-    	
+
     },
     toggle: function(e) {
        e.currentTarget.nextElementSibling.toggle();
     },
     addLayer: function(e){
     	var layer = e.model.item;
-    	
+
   	  	var l;
 		switch (layer.mappu_config.source.type){
 			case 'OGC_WMS':
@@ -78,7 +78,7 @@ Polymer({
 					visible: layer.options.visible,
 					config: layer,
 					minZoom: 24
-			}); 	 
+			});
 			break;
 			case 'OGC_TMS': //NOT TESTED YET
 			l = new d3.mappu.RasterLayer(layer.source.featureName, {
