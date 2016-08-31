@@ -92,10 +92,10 @@ Polymer({
     },
 
     attached: function(){
-        this.map.resize();
+        //this.map.resize();
         this.map.zoom = this.zoom;
         this.map.center = this.center;
-    	//this.map.redraw();
+    	this.map.redraw();
     },
     resize: function(){
     	console.warn('deprecated: resize possibly not needed anymore');
