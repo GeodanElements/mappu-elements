@@ -22,11 +22,33 @@
       margin-right: 1px;
       cursor: move;
   }
+  paper-checkbox.card {
+  	display: block;
+    align-self: center;
+    border: 1px solid var(--paper-blue-200);
+    padding: 8px 16px;
 
+    --paper-checkbox-checked-color: var(--paper-blue-500);
+    --paper-checkbox-checked-ink-color: var(--paper-blue-500);
+    --paper-checkbox-unchecked-color: var(--paper-blue-900);
+    --paper-checkbox-unchecked-ink-color: var(--paper-blue-900);
+    --paper-checkbox-label-color: var(--paper-blue-500);
+    --paper-checkbox-label-spacing: 0;
+    --paper-checkbox-margin: 8px 16px 8px 0;
+    --paper-checkbox-vertical-align: top;
+  }
+  paper-checkbox .subtitle {
+    display: block;
+    font-size: 0.8em;
+    margin-top: 2px;
+    max-width: 150px;
+  }
+  
   paper-card {
-      display: block;
-      margin-bottom: 5px;
-      min-width: 250px;
+    box-sizing: border-box;
+    max-width: 184px;
+    margin: 4px;
+    flex: 0 0 auto;
   }
   .card-actions {
     padding-bottom: 10px;
@@ -59,6 +81,31 @@
 
 </style>
 <template>
+
+<paper-checkbox checked="{{layer.visible}}" class="card">
+  [[layer.name]]
+  <!--
+  <span class="subtitle">
+    With a longer subtitle that wraps to another line
+    <paper-icon-button icon="hardware:keyboard-arrow-up" title="more info" on-click="_toggle" style="float:right;">
+          </paper-icon-button>
+  </span>
+  <iron-collapse id="moreinfo" style="width:100%;">
+            <paper-slider min="0" max="1" step="0.01" value="1" immediatevalue="{{layer.opacity}}" on-value-change="setOpacity" title="Schuif om de transparantie van de laag in te stellen"></paper-slider>
+              <template is="dom-if" if="{{layer.options.legendUrl}}">
+                <div class="legendImg" draggable="false">
+                  <img src="{{layer.options.legendUrl}}"/>
+                </div>
+              </template>
+
+            <div class="layout horizontal">
+              <paper-button class="removeLayer" on-click="removeLayer">verwijder laag</paper-button>
+            </div>
+        </iron-collapse>
+        -->
+</paper-checkbox>
+
+<!--
     <paper-card class="white">
       <div class="card-content">
           <paper-checkbox checked="{{layer.visible}}" style="padding:20px"></paper-checkbox>
@@ -81,7 +128,7 @@
         </iron-collapse>
       </div>
     </paper-card>
-
+-->
 <!--
     <div class="layer">
       <paper-material class="layer">
