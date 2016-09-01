@@ -1,0 +1,34 @@
+{
+  "name": "mappu-elements",
+  "version": "0.0.3",
+  "homepage": "https://github.com/GeodanElements/mappu-elements",
+  "description": "Polymer implementation for mappu",
+  "keywords": [
+    "polymer",
+    "mappu"
+  ],
+  "main": [
+    "mappu-map.html"
+  ],
+  "authors": [
+    "Tom van Tilburg"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#~1",
+    "paper-elements": "PolymerElements/paper-elements#~1",
+    "iron-elements": "PolymerElements/iron-elements#~1",
+    "d3.mappu": "https://github.com/Geodan/d3.mappu.git#master",
+    "proj4": "^2.3.14",
+    "terraformer": "^1.0.5",
+    "terraformer-wkt-parser": "^1.1.0",
+    "Sortable": "^1.4.2"
+  }
+}

@@ -1,0 +1,84 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../Sortable/Sortable.html">
+<link rel="import" href="mappu-layercard.html">
+<!--<link rel="import" href="./gm-drag-drop.html">-->
+<dom-module id="mappu-layermanager">
+
+<style>
+
+</style>
+<template>
+
+<sortable-js id="sortable" handle=".handle" on-end="_shuffle">
+    <template id="layerlist" is="dom-repeat" items="{{reverselayers}}">
+        <mappu-layercard layer='{{item}}' class='handle'></mappu-layercard>
+    </template>
+</sortable-js>
+
+</template>
+</dom-module>
+<script>
+var layers = null;
+var map = null; //For debug
+Array.prototype.move = function (old_index, new_index) {
+		while (old_index < 0) {
+		old_index += this.length;
+  }
+  while (new_index < 0) {
+  	new_index += this.length;
+  }
+  if (new_index >= this.length) {
+		var k = new_index - this.length;
+		while ((k--) + 1) {
+			this.push(undefined);
+		}
+  }
+  this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+  return this; // for testing purposes
+};
+  Polymer({
+  is: 'mappu-layermanager',
+  properties: {
+		map: {
+			type: Object,
+			observer: 'mapChanged'
+		},
+		display: {
+			type: String,
+			value: 'none'
+		},
+		layers: {
+			type: Array,
+			observer: 'mapChanged'
+		}
+  },
+  observers: [
+  ],
+  //Reorder the layers after dragging them
+  _shuffle: function(d){
+		this.layers = this.layers.reverse().move(d.oldIndex,d.newIndex);
+		this.map.orderLayers();
+  },
+  reverse: function(){
+		this.reverselayers = self.map.layers.slice(0).reverse();
+		this.$.layerlist.render(); //somehow it's not autorefreshing
+  },
+  mapChanged: function(){
+		var self = this;
+		map = this.map; //debug
+		function rerender(){
+			self.layers = self.map.layers;
+			self.layers.forEach(function(d){
+				//a bit of a hassle to pick the wms layers...
+				if (d.options && d.options.ogc_type == 'wms') d.iswms = true;
+			});
+			self.reverselayers = self.map.layers.slice(0).reverse();
+			self.$.layerlist.render(); //somehow it's not autorefreshing
+		}
+		this.map.mapdiv.addEventListener('layeradded',rerender);
+		this.map.mapdiv.addEventListener('layerremoved',rerender);
+  },
+  ready: function(){
+  },
+  });
+</script>

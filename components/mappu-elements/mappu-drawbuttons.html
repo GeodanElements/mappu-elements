@@ -1,0 +1,232 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
+<link rel="import" href="../iron-selector/iron-selector.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
+<link rel="import" href="../iron-icons/social-icons.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-fab/paper-fab.html">
+<dom-module id="mappu-drawbuttons">
+ <style>
+ 	#drawbuttons {
+		position: absolute;
+		right: 0px;
+		top: 0px;
+		z-index: 100;
+	}
+	paper-fab {
+		background: gray;
+		margin: 5px;
+	}
+	.iron-selected {
+      background: orange;
+    }
+	paper-icon-item {
+		cursor: pointer;
+		min-height: 20px;
+	}
+	svg {
+		cursor: pointer;
+	}
+ 	.collapse-content {
+ 		margin-right: 50px;
+ 		width: 400px;
+ 		background: white;
+ 		padding: 10px;
+ 	}
+    /*
+ 	.layer {
+		border-top: solid 1px rgb(200,200,200);
+		border-bottom: solid 1px white;
+		background: white;
+	}*/
+	.marker {
+		width: 40px;
+		height: 40px;
+	}
+ </style>
+ <template>
+ 	<div id='drawbuttons'>
+ 		<iron-collapse align='right' class='collapse-content' id='collapse1'>
+ 			<iron-selector id="icons">
+ 				<template is="dom-repeat" items="{{iconset}}">
+                    <paper-icon-button class="marker" alt="{{item.text}}" value="{{item.url}}" src="data:image/png;base64,[[item.base64]]" on-click="startPoint"></paper-icon-button>
+ 				</template>
+ 			</iron-selector>
+ 		</iron-collapse>
+ 		<iron-collapse align='right' class='collapse-content' id='collapse2'>
+ 			<iron-selector id="lines" align='right'>
+ 				<template is="dom-repeat" items="{{lineset}}">
+ 					<svg width="29" height="29" on-click="startLine">
+ 					<g transform="translate(-27.086869,-417.52882)">
+ 						<path fill$="{{item.fill}}" stroke$="{{item.stroke}}" d="M 2.7731138,5.3788833 14.252526,11.064017 26.527918,3.1859009 20.874459,-6.2398619 7.3960719,-3.9366059 z" transform="translate(27.086869,429.63625)" />
+ 					</g></svg>
+ 				</template>
+ 			</iron-selector>
+ 		</iron-collapse>
+
+ 		<iron-collapse align='right' class='collapse-content' id='collapse3'>
+ 			<iron-selector id="polygons">
+ 				<template is="dom-repeat" items="{{polygonset}}">
+ 					<svg width="29" height="29" on-click="startPolygon">
+ 					<g transform="translate(-27.086869,-417.52882)">
+ 						<path fill$="{{item.fill}}" stroke$="{{item.stroke}}" fill-opacity="0.5" d="M 2.7731138,5.3788833 14.252526,11.064017 26.527918,3.1859009 20.874459,-6.2398619 7.3960719,-3.9366059 z" transform="translate(27.086869,429.63625)" />
+ 					</g></svg>
+ 				</template>
+ 			</iron-selector>
+ 		</iron-collapse>
+
+ 		<iron-selector id="drawbuttons" class="list" selected="-1">
+			 <paper-fab mini id="pointfab" style$="color:{{selectedPointColor}}" icon="icons:room" on-click="togglePoints"></paper-fab>
+			 <paper-fab mini id="linefab" style$="color:{{selectedLineColor}}" icon="gesture" on-click="toggleLines"></paper-fab>
+			 <paper-fab mini id="polygonfab" style$="color:{{selectedPolyColor}}" icon="bookmark" on-click="togglePolygons"></paper-fab>
+			 <br><!--
+			 <paper-fab mini id="editfab" icon="create" on-click="startEdit"></paper-fab>
+			 <paper-fab mini id="deletefab" icon="content-cut" on-click="startRemove"></paper-fab>
+			 -->
+			 <paper-fab mini id="cancelfab" icon="remove-circle-outline" on-click="finish"></paper-fab>
+		 </iron-selector>
+
+ 	</div>
+ </template>
+
+</dom-module>
+
+<script>
+
+Polymer({
+	is: 'mappu-drawbuttons',
+	properties: {
+		styleset: {
+			observer: '_stylesetChanged'
+		},
+		map: {
+			type: Object,
+			observer: '_mapChanged'
+		}
+	},
+	ready: function(){
+
+	},
+	_stylesetChanged: function(){
+		this.iconset = this.styleset.iconset;
+		this.lineset = this.styleset.lineset;
+		this.polygonset = this.styleset.polygonset;
+	},
+	_stylesetChanged: function(){
+		this.iconset = this.styleset.iconset;
+		this.lineset = this.styleset.lineset;
+		this.polygonset = this.styleset.polygonset;
+	},
+	_mapChanged: function(){
+		this.sketch = this.map.sketch;
+	},
+	_getPolystyle: function(item){
+		return 'fill:'+item.fill+';fill-opacity:0.7;stroke:'+item.stroke+';stroke-width:1;';
+	},
+	toggle: function(e){
+		e.currentTarget.nextElementSibling.toggle();
+	},
+	togglePoints: function(){
+		this.$.collapse1.toggle();
+	},
+	toggleLines: function(){
+		this.$.collapse2.toggle();
+	},
+	togglePolygons: function(){
+		this.$.collapse3.toggle();
+	},
+	startPoint: function(e){
+		var self = this;
+		var featureReady = function(feature){
+			self.map.mapdiv.style.cursor = 'auto';
+			feature.style = {
+				fill: 'none',
+                iconimg_encoding: 'png;base64',
+                iconimg_bytearray: e.model.item.base64,
+                iconimg: true,
+				'marker-url': e.model.item.url,
+				stroke: 'none'
+			};
+			for (var attrname in feature.style) { feature.properties[attrname] = feature.style[attrname]; }
+            self.fire('featureReady',feature);
+		};
+		this.sketch.finish();
+		this.sketch.draw('Point')
+			.then(function(d){
+				featureReady(d);
+			});
+		var url = e.model.item.url;
+		this.map.mapdiv.style.cursor = 'url('+url+') 18 20,auto';
+	},
+	startLine: function(e){
+		var self = this;
+		var featureReady = function(feature){
+			self.map.mapdiv.style.cursor = 'auto';
+			feature.style = {
+				fill: 'none',
+				stroke: e.model.item.stroke,
+				"stroke-width": e.model.item['stroke-width']
+			};
+			feature.style = e.model.item;
+			for (var attrname in feature.style) {
+				feature.properties[attrname] = feature.style[attrname];
+			}
+            self.fire('featureReady',feature);
+		};
+		this.sketch.finish();
+		this.sketch.draw('LineString')
+			.then(function(d){
+				featureReady(d);
+			});
+		this.map.mapdiv.style.cursor = 'crosshair';
+	},
+	startPolygon: function(e){
+		var self = this;
+		var featureReady = function(feature){
+			self.map.mapdiv.style.cursor = 'auto';
+			feature.style = {
+				fill: 'none',
+				stroke: e.model.item.stroke,
+				"stroke-width": e.model.item['stroke-width']
+			};
+			feature.style = e.model.item;
+			for (var attrname in feature.style) { feature.properties[attrname] = feature.style[attrname]; }
+			self.fire('featureReady',feature);
+		};
+		this.sketch.finish();
+		this.sketch.draw('Polygon')
+			.then(function(d){
+				featureReady(d);
+			});
+		this.map.mapdiv.style.cursor = 'crosshair';
+	},
+	startEdit: function(){
+		var self = this;
+		var featureReady = function(e){
+			self.map.mapdiv.removeEventListener('featureChanged', featureReady);
+			//var feature = e.detail;
+			//self.fire('changedfeature', {feature: feature});
+			self.$.drawbuttons.selected = -1;
+		};
+		this.sketch.startEdit();
+	},
+	startRemove: function(){
+		var self = this;
+		var callback = function(e){
+			self.map.mapdiv.removeEventListener('featureRemoved', callback);
+			//var feature = e.detail;
+			//self.fire('removedfeature', {feature: feature});
+			self.$.drawbuttons.selected = -1;
+		};
+		this.sketch.startRemove();
+	},
+
+	finish: function(){
+		this.$.collapse1.hide();
+		this.$.collapse2.hide();
+		this.$.collapse3.hide();
+		this.sketch.finish();
+	},
+});
+</script>
