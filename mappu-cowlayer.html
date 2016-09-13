@@ -42,6 +42,7 @@
     _mapChanged: function() {
 		var self = this;
 		var map = this.map;
+		
 		this.layer = new d3.mappu.VectorLayer('Draw',{
     		reproject: true,
     		style: {
@@ -88,7 +89,7 @@
 							return proj4(toproj,coordinate);
 						});
 						var geom = Terraformer.WKT.convert(geojson.geometry);
-						var url = './data/populator.php';
+						var url = 'http://research.geodan.nl/sites/eagle_geofort_new/data/populator.php';
 						d3.json(url+'?geom='+JSON.stringify(geojson.geometry),populatorCallback);
 					}
 					var offset = 30;
