@@ -31,13 +31,16 @@
     </div>
  </template>
 
-</dom-module>
+
 
 <script>
 var map = null; //For debug
-Polymer({
-    is: 'mappu-map',
-    properties: {
+class MappuPam extends Polymer.Element {
+    static get is() {
+        return 'mappu-map'
+    }
+    static get properties() {
+    return {
     	center: {
     		type: Array,
     		value: function(){return [5.2,52.2]},
@@ -52,17 +55,22 @@ Polymer({
     		notify: true,
     		type: Object
     	}
-    },
-    _centerChanged: function(){
+     }
+    }
+    constructor() {
+      super();
+    }
+    _centerChanged(){
         var self = this;
         setTimeout(function(){
             //if (self.map) self.map.center = self.center;
         },1000);
-    },
-    _zoomChanged: function(){
+    }
+    _zoomChanged(){
         //if (this.map) this.map.zoom = this.zoom;
-    },
-    ready: function(){
+    }
+    ready(){
+        this.super.ready();
         this.map = new d3.mappu.Map(this.$.mapdiv,{
             center: this.center,
             zoom: this.zoom,
@@ -90,19 +98,15 @@ Polymer({
  		 })
  		 .addTo(this.map);
  		 */
-    },
+    }
 
-    attached: function(){
+    attached(){
         this.map.resize();
         this.map.zoom = this.zoom;
         this.map.center = this.center;
     	
-    },
-    resize: function(){
-    	console.warn('deprecated: resize possibly not needed anymore');
-    	//this.map.resize();
     }
-
-
-});
+};
+customElements.define(MappuMap.is, MappuMap);
 </script>
+</dom-module>
