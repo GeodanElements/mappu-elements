@@ -1,6 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
 <script src="../d3/d3.min.js"></script>
 <script src="../d3.mappu/dist/d3.mappu.js"></script>
+<script src="https://unpkg.com/d3-array@1.0"></script>
+<script src="https://unpkg.com/d3-tile@0.0"></script>
+
 
 <dom-module id="mappu-map">
  <style>
@@ -35,7 +38,7 @@
 
 <script>
 var map = null; //For debug
-class MappuPam extends Polymer.Element {
+class MappuMap extends Polymer.Element {
     static get is() {
         return 'mappu-map'
     }
@@ -70,7 +73,7 @@ class MappuPam extends Polymer.Element {
         //if (this.map) this.map.zoom = this.zoom;
     }
     ready(){
-        this.super.ready();
+        super.ready();
         this.map = new d3.mappu.Map(this.$.mapdiv,{
             center: this.center,
             zoom: this.zoom,
@@ -78,9 +81,10 @@ class MappuPam extends Polymer.Element {
             maxZoom: 30,
             projection: d3.geoMercator()
          });
+         window.map = this.map;
         //Edit functionality
-        new d3.mappu.Sketch().addTo(this.map);
-        /*
+        //new d3.mappu.Sketch().addTo(this.map);
+        
         //Background layer;
          new d3.mappu.RasterLayer('Basemap',  {
              ogc_type: 'tms',
@@ -97,7 +101,7 @@ class MappuPam extends Polymer.Element {
              opacity: 1
  		 })
  		 .addTo(this.map);
- 		 */
+ 		 
     }
 
     attached(){
